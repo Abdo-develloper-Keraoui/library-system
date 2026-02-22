@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Security configuration for the application.
@@ -32,12 +33,15 @@ public class SecurityConfig {
     // Our custom JWT filter — injected here so we can plug it into the filter chain
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final CorsConfigurationSource corsConfigurationSource;
+
     /**
      * Constructor injection — Spring gives us the JwtAuthenticationFilter bean.
      * No @Autowired needed because there's only one constructor.
      */
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     /**
@@ -86,7 +90,9 @@ public class SecurityConfig {
                 )
 
                 // Run our JWT filter before Spring's default authentication filter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource));
+
 
         return http.build();
     }
