@@ -34,4 +34,6 @@ public class BookCreateDTO {
     private Integer copiesAvailable;
 
     private String coverImageUrl; // nullable — no validation needed
+
+    private String genre;
 }

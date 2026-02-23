@@ -35,6 +35,10 @@ public class Book {
     @Column
     private String coverImageUrl;
 
+    //Genre is optional
+    @Column(length = 50)
+    private String genre;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

@@ -27,6 +27,9 @@ public class BookResponseDTO {
 
     private String coverImageUrl;
 
+    private String genre;
+
+
     //date of creation of book inside my app
     private LocalDateTime createdAt;
 }

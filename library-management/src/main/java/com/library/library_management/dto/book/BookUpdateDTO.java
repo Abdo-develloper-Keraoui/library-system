@@ -33,4 +33,7 @@ public class BookUpdateDTO {
     private Integer copiesAvailable;
 
     private String coverImageUrl;
+
+    private String genre;
+
 }

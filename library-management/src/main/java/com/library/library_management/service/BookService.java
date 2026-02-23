@@ -77,6 +77,7 @@ public class BookService {
         book.setPubYear(dto.getPubYear().intValue());
         book.setCopiesAvailable(dto.getCopiesAvailable());
         book.setCoverImageUrl(dto.getCoverImageUrl());
+        book.setGenre(dto.getGenre());
 
         Book savedBook = bookRepository.save(book);
         return mapToDTO(savedBook);
@@ -117,6 +118,9 @@ public class BookService {
         }
         if (dto.getCoverImageUrl() != null) {
             book.setCoverImageUrl(dto.getCoverImageUrl());
+        }
+        if (dto.getGenre() != null) {
+            book.setGenre(dto.getGenre());
         }
 
         Book updatedBook = bookRepository.save(book);
@@ -168,6 +172,7 @@ public class BookService {
                 book.getPubYear(),
                 book.getCopiesAvailable(),
                 book.getCoverImageUrl(),
+                book.getGenre(),
                 book.getCreatedAt()
         );
     }
