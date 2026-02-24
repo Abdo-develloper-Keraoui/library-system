@@ -3,6 +3,7 @@ package com.library.library_management.service;
 import com.library.library_management.dto.user.UserResponseDTO;
 import com.library.library_management.exception.ResourceNotFoundException;
 import com.library.library_management.model.User;
+import com.library.library_management.repository.BorrowRepository;
 import com.library.library_management.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +12,11 @@ import java.util.List;
 @Service
 public class AdminUserService {
     private final UserRepository userRepository;
+    private final BorrowRepository borrowRepository;
 
-    public AdminUserService(UserRepository userRepository) {
+    public AdminUserService(UserRepository userRepository, BorrowRepository borrowRepository) {
         this.userRepository = userRepository;
+        this.borrowRepository = borrowRepository;
     }
 
 
@@ -40,6 +43,7 @@ public class AdminUserService {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
+        borrowRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
 
