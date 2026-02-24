@@ -50,6 +50,7 @@ public class BorrowService {
             throw new BusinessException("User cannot have more than three active borrows!");
         }
 
+
         //user already has this book borrowed and active
         if(borrowRepository.existsByUserIdAndBookIdAndStatus(userId, bookId, BorrowStatus.ACTIVE)) {
             throw new BusinessException("User cannot borrow the same book twice!");
@@ -57,6 +58,10 @@ public class BorrowService {
         //Happy case
         //Create Borrow record
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (!user.isActive()) {
+            throw new BusinessException("Your account has been suspended. Please contact an administrator.");
+        }
 
         Borrow borrow = new Borrow();
         borrow.setBook(book);

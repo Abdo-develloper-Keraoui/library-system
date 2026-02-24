@@ -4,6 +4,8 @@ import com.library.library_management.model.Borrow;
 import com.library.library_management.model.BorrowStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -21,6 +23,15 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
     //user viewing their borrow history
     List<Borrow> findByUserId(Long userId);
+
+    @Modifying
+    @Transactional
+    void deleteByBookId(Long bookId);
+
+    @Modifying
+    @Transactional
+    void deleteByUserId(Long userId);
+
 
 
 }

@@ -8,6 +8,7 @@ import com.library.library_management.exception.ResourceNotFoundException;
 import com.library.library_management.model.Book;
 import com.library.library_management.repository.BookRepository;
 
+import com.library.library_management.repository.BorrowRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
@@ -23,9 +24,12 @@ public class BookService {
 
     // Constructor injection — Spring auto-wires BookRepository here (no need for @Autowired)
     private final BookRepository bookRepository;
+    private final BorrowRepository borrowRepository;
 
-    public BookService(BookRepository bookRepository) {
+
+    public BookService(BookRepository bookRepository, BorrowRepository borrowRepository) {
         this.bookRepository = bookRepository;
+        this.borrowRepository = borrowRepository;
     }
 
     /**
@@ -139,6 +143,7 @@ public class BookService {
         if (!bookRepository.existsById(id)) {
             throw new ResourceNotFoundException("Book not found with id: " + id);
         }
+        borrowRepository.deleteByBookId(id);
         bookRepository.deleteById(id);
     }
 
