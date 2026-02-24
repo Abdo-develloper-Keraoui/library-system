@@ -35,7 +35,7 @@ function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-section)' }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
         <h2 style={{ marginBottom: '24px' }}>Login</h2>
 
@@ -68,6 +68,15 @@ function LoginPage() {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+        <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--text-light)' }}>
+          Don't have an account?{' '}
+          <span
+            style={{ color: 'var(--jade)', cursor: 'pointer', fontWeight: '600' }}
+            onClick={() => navigate('/register')}
+          >
+            Register
+          </span>
+        </p>
       </div>
     </div>
   )
