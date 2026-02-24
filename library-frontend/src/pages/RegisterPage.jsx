@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { register } from '../api/authApi'
+import { register, login } from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
 
 function RegisterPage() {
@@ -18,8 +18,9 @@ function RegisterPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await register(email, password, firstName, lastName)
-      loginUser(response.data)
+      await register(email, password, firstName, lastName)
+      const loginResponse = await login(email, password)
+      loginUser(loginResponse.data)
       navigate('/')
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed'
@@ -72,6 +73,7 @@ function RegisterPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
           />
         </div>
 

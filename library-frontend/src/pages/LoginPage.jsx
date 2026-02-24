@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { login } from '../api/authApi'
+import { useAuth } from '../context/AuthContext'
 
 function LoginPage() {
   const [email, setEmail] = useState('')
@@ -15,20 +16,12 @@ function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await fetch('http://localhost:8081/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        setError(data.message || 'Login failed')
-        return
-      }
-      loginUser(data)
+      const response = await login(email, password)
+      loginUser(response.data)
       navigate('/')
     } catch (err) {
-      setError('Could not connect to server')
+      const message = err.response?.data?.message || 'Login failed'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -57,6 +50,7 @@ function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
           />
         </div>
 
@@ -68,6 +62,7 @@ function LoginPage() {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
         <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--text-light)' }}>
           Don't have an account?{' '}
           <span
