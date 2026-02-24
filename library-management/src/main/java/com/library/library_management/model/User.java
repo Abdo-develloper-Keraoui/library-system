@@ -24,7 +24,7 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    //email (UQ)?? unique ?
+
     @Column(nullable = false, unique = true)
     private String email;
 
