@@ -6,6 +6,7 @@ import com.library.library_management.model.User;
 import com.library.library_management.repository.BorrowRepository;
 import com.library.library_management.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class AdminUserService {
     }
 
 
-
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);

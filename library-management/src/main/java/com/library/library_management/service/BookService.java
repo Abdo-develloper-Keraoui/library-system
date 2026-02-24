@@ -10,6 +10,7 @@ import com.library.library_management.repository.BookRepository;
 
 import com.library.library_management.repository.BorrowRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Year;
 import java.util.List;
@@ -139,6 +140,7 @@ public class BookService {
      * @param id the book's primary key
      * @throws ResourceNotFoundException if book not found
      */
+    @Transactional
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
             throw new ResourceNotFoundException("Book not found with id: " + id);

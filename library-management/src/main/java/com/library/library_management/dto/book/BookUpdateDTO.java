@@ -25,7 +25,7 @@ public class BookUpdateDTO {
     private String isbn;
 
 
-    @Min(value = 1000, message = "Publication year must be valid")
+    @Min(value = -3000, message = "Publication year must be valid (after 3000 BC)")
     private Integer pubYear;
 
 
