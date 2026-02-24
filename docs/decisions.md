@@ -303,9 +303,9 @@ Entities are the internal database representation. DTOs are what travel over the
 | Docker Compose for deployment | 📅 Day 18 |
 | Deployed to free hosting platform | 📅 Day 19 |
 | Basic CI/CD pipeline (GitHub Actions) | 📅 Day 18 |
-| React + Vite frontend (Rivendell Reads) | 🔄 In progress |
+| React + Vite frontend (Rivendell Reads) | ✅ Done |
 | README | 📅 Day 20 |
 
 ---
 
-_Last updated: Day 15 ✅ — Backend 100% complete. Frontend in progress._
+_Last updated: Day 17 ✅ — Backend 100% complete. Frontend feature-complete._

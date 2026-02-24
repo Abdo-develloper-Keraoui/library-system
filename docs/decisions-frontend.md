@@ -43,9 +43,9 @@ A running log of technical decisions made during the Library Management System f
 **The interceptor pattern:**
 ```js
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
+    const token = localStorage.getItem('token')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
 })
 ```
 
@@ -105,7 +105,7 @@ axiosInstance.interceptors.request.use((config) => {
 **Fix:**
 ```js
 export const register = (email, password, firstName, lastName) => {
-  return axiosInstance.post('/auth/register', { email, password, firstName, lastName })
+    return axiosInstance.post('/auth/register', { email, password, firstName, lastName })
 }
 ```
 
@@ -174,4 +174,70 @@ export const register = (email, password, firstName, lastName) => {
 
 ---
 
-_Last updated: Day 15 ✅_
+## 15. Delete confirmation on AdminUsersPage: inline confirm bar — not `window.confirm()` (Day 17)
+
+**Decision:** Replace `window.confirm()` on AdminUsersPage with a styled inline confirmation bar that renders inside the user's card.
+
+**How it works:** `confirmDeleteId` state tracks which user's confirmation is currently open. Clicking Delete sets `confirmDeleteId = user.id`. A bar appears inside that card with "Delete **FirstName**? This cannot be undone." and Cancel / "Yes, delete" buttons. Cancel clears the state. Confirm calls the real delete handler.
+
+**Why:** `window.confirm()` is a browser-native modal that is unstyled, cannot use CSS variables, and blocks JavaScript execution. The inline bar stays within the Rivendell Reads design system, requires zero external libraries, and is implemented with one piece of React state.
+
+**Note:** `AdminBooksPage` still uses `window.confirm()` for book deletion — the styled inline confirm was only applied to users. Consistent treatment across both pages is a potential Day 20 cleanup.
+
+**Ruled out:** `window.confirm()`, third-party modal libraries.
+
+---
+
+## 16. AdminRoute: separate component for role-based route protection (Day 17)
+
+**Decision:** Created a dedicated `AdminRoute.jsx` component alongside the existing `ProtectedRoute` and `GuestRoute`.
+
+**How it works:**
+```jsx
+function AdminRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" />
+  if (user.role !== 'ADMIN') return <Navigate to="/" />
+  return children
+}
+```
+
+**Why:** `ProtectedRoute` only checks if a user is logged in — it doesn't check role. Wrapping admin routes with `AdminRoute` handles both scenarios: unauthenticated users go to login, authenticated non-admins go to home. Three distinct guard components, each with a single clear responsibility.
+
+**Ruled out:** Putting role checks inside each admin page component (duplication), a single generic route guard with a `role` prop (less explicit).
+
+---
+
+## 17. adminApi.js: separate file for admin HTTP calls (Day 17)
+
+**Decision:** Admin user management API calls live in their own `src/api/adminApi.js` file.
+
+**Why:** Mirrors the separation pattern already used for `authApi`, `bookApi`, `borrowApi`. Admin calls are a distinct domain — keeping them separate makes the api/ folder easy to scan. Any developer can immediately see where admin-specific backend calls are made.
+
+---
+
+## 18. HomePage: landing page with animated book belt (Day 17)
+
+**Decision:** Route `/` renders a dedicated `HomePage` (not `BooksPage`). It has two sections: a hero with a call-to-action, and an animated horizontal scroll of book covers.
+
+**Belt implementation:** All books are fetched from the API. The array is doubled (`[...books, ...books]`) to make the scroll seamless — when the first copy scrolls out, the second copy is already in place. Only books with `coverImageUrl` render in the belt. CSS `@keyframes scrollBelt` handles the animation (40s linear infinite). Hovering pauses playback.
+
+**Why:** A static page with just Login/Register buttons is boring. The book belt makes the app feel alive immediately and shows real catalogue data without requiring a login. It costs one `getAllBooks()` call that would be made anyway when the user navigates to BooksPage.
+
+**Ruled out:** Making BooksPage the landing page, a static hero with no dynamic content.
+
+---
+
+## 19. LoginPage uses raw fetch — known inconsistency (Day 17)
+
+**Decision:** `LoginPage` was the first page built and uses the browser's native `fetch` API directly rather than `axiosInstance`.
+
+**Why it happened:** `LoginPage` was written before `axiosInstance.js` was set up. All subsequent pages use `axiosInstance` via the api/ files.
+
+**Current state:** `LoginPage` calls `fetch('http://localhost:8081/api/v1/auth/login', ...)` directly and handles the response manually. This is the only page that bypasses the centralized API layer.
+
+**Future fix:** Refactor `LoginPage` to call `authApi.login(email, password)` to match the rest of the codebase. Low priority — it works correctly, it's just inconsistent.
+
+---
+
+_Last updated: Day 17 ✅_
