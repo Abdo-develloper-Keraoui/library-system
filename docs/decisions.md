@@ -44,17 +44,32 @@
 
 ---
 
-### 6. Admin user management: suspend and delete — added in backend
+### 6. Admin user management: suspend/unsuspend toggle and delete ✅ COMPLETE
 
-**Decision:** Three new admin endpoints — list all users, suspend/unsuspend a user (`isActive` toggle), delete a user. `User` entity has an `isActive` boolean field defaulting to `true`.
+**Decision:** Three admin endpoints — list all users, toggle suspend/unsuspend (`isActive` toggle), delete a user. `User` entity has an `isActive` boolean field defaulting to `true`.
 
-**Why:** Demonstrates admin power beyond book management. Suspend is more realistic than hard-delete for most violations — an admin can revoke borrowing access without losing the user's history. Delete is also available for full cleanup. Both are ADMIN-only and locked down in `SecurityConfig`.
+**Why:** Demonstrates admin power beyond book management. Suspend is more realistic than hard-delete for most violations — an admin can revoke borrowing access without losing the user's history. The same endpoint toggles both directions (if active → suspend, if suspended → unsuspend), which enables a clean single button in the UI. Delete is also available for full cleanup. Both are ADMIN-only and locked down in `SecurityConfig`.
+
+**Endpoints:**
+```
+GET    /api/v1/admin/users              ← returns List<UserResponseDTO>
+PUT    /api/v1/admin/users/{id}/suspend ← toggles isActive
+DELETE /api/v1/admin/users/{id}         ← hard delete
+```
+
+---
+
+### 7. firstName added to AuthResponseDTO ✅
+
+**Decision:** Login and register responses both return `{ token, email, role, firstName }`.
+
+**Why:** The Navbar needs to display the user's first name on every page. If `firstName` is not in the auth response, the frontend would need a separate `GET /api/v1/users/me` call after every login just to show a name. Returning it in the auth response means it's available immediately — no extra round trip. The frontend stores it in `localStorage` alongside the token.
 
 ---
 
 ## 🛠️ Technology Decisions
 
-### 7. React + Vite for frontend — not Next.js
+### 8. React + Vite for frontend — not Next.js
 
 **Decision:** Frontend is built with plain React + Vite.
 
@@ -62,7 +77,7 @@
 
 ---
 
-### 8. Spring Security + JWT authentication
+### 9. Spring Security + JWT authentication
 
 **Decision:** Authentication uses Spring Security with JWT tokens.
 
@@ -70,7 +85,7 @@
 
 ---
 
-### 9. Only PostgreSQL runs in Docker during development
+### 10. Only PostgreSQL runs in Docker during development
 
 **Decision:** PostgreSQL runs in Docker. Spring Boot runs from IntelliJ. React runs via `npm run dev`.
 
@@ -78,7 +93,7 @@
 
 ---
 
-### 10. Full Docker Compose setup is a deployment-phase task
+### 11. Full Docker Compose setup is a deployment-phase task
 
 **Decision:** Dockerfiles and `docker-compose.yml` are written once the application is feature-complete.
 
@@ -86,7 +101,7 @@
 
 ---
 
-### 11. CI/CD with GitHub Actions — minimal pipeline
+### 12. CI/CD with GitHub Actions — minimal pipeline
 
 **Decision:** A basic GitHub Actions pipeline runs build + tests on every push to `main`.
 
@@ -96,7 +111,7 @@
 
 ## 🏗️ Architecture Decisions
 
-### 12. Layered architecture: Controller → Service → Repository
+### 13. Layered architecture: Controller → Service → Repository
 
 **Decision:** Standard three-layer Spring Boot architecture.
 
@@ -104,7 +119,7 @@
 
 ---
 
-### 13. Service methods throw exceptions on "not found" — never return Optional
+### 14. Service methods throw exceptions on "not found" — never return Optional
 
 **Decision:** Services throw `ResourceNotFoundException` instead of returning `Optional`.
 
@@ -112,7 +127,7 @@
 
 ---
 
-### 14. Custom exception classes — not generic RuntimeException
+### 15. Custom exception classes — not generic RuntimeException
 
 **Decision:** `ResourceNotFoundException`, `BusinessException` instead of raw `RuntimeException`.
 
@@ -120,7 +135,7 @@
 
 ---
 
-### 15. Password hashing in the service layer — not controller or entity
+### 16. Password hashing in the service layer — not controller or entity
 
 **Decision:** BCrypt hashing happens in `AuthService`, not `AuthController` or `User`.
 
@@ -128,7 +143,7 @@
 
 ---
 
-### 16. Validation errors handled in GlobalExceptionHandler — not per-controller
+### 17. Validation errors handled in GlobalExceptionHandler — not per-controller
 
 **Decision:** `MethodArgumentNotValidException` is caught once in `GlobalExceptionHandler`.
 
@@ -136,7 +151,7 @@
 
 ---
 
-### 17. Role-based authorization: SecurityConfig for broad rules + @PreAuthorize for fine-grained rules
+### 18. Role-based authorization: SecurityConfig for broad rules + @PreAuthorize for fine-grained rules
 
 **Decision:** Authorization uses both `SecurityConfig` and `@PreAuthorize` together.
 
@@ -144,85 +159,69 @@
 
 `@PreAuthorize("hasRole('ADMIN')")` handles fine-grained rules directly on controller methods — POST/PUT/DELETE books, GET all borrows, all admin user management endpoints.
 
-**Why:** Putting all rules in `SecurityConfig` creates a hidden coupling problem — a developer reading `BookController.java` has no idea who can call each method without opening a separate file. As the project grows, `SecurityConfig` becomes a fragile list of URL patterns where order matters. `@PreAuthorize` puts the authorization rule at the point of definition, right next to the method it protects. The two layers serve different purposes and work best together. This is the industry-standard approach in Spring Boot projects.
+**Why:** Putting all rules in `SecurityConfig` creates a hidden coupling problem — a developer reading `BookController.java` has no idea who can call each method without opening a separate file. `@PreAuthorize` puts the authorization rule at the point of definition, right next to the method it protects. This is the industry-standard approach in Spring Boot projects.
 
 ---
 
-### 18. Stateless API with JWT — no server-side sessions
+### 19. Stateless API with JWT — no server-side sessions
 
 **Decision:** The API uses stateless JWT authentication. No sessions are created or stored on the server.
 
-**Why:** Session-based auth makes the server the source of truth — sticky sessions fail if that server goes down, and a shared session database is a single point of failure. JWT solves this cleanly. The token itself is the session — generated at login, stored client-side, sent with every request. Any server can validate it independently using the shared secret key. No shared state, scales to any number of servers.
+**Why:** Session-based auth makes the server the source of truth — sticky sessions fail if that server goes down. JWT solves this cleanly. The token itself is the session — generated at login, stored client-side, sent with every request. Any server can validate it independently using the shared secret key. No shared state, scales to any number of servers.
 
 ---
 
-### 19. JwtAuthenticationFilter identifies every request — never blocks
+### 20. Two borrow DTOs — user-facing vs admin-facing
 
-**Decision:** `JwtAuthenticationFilter` runs on every request. Its only job is identification, not blocking.
+**Decision:** `BorrowResponseDTO` for regular users, `AdminBorrowResponseDTO` for admins.
 
-**Why:** The filter reads the `Authorization` header, skips silently if no Bearer token is present, validates the token if one exists, and stores the user's identity in `SecurityContextHolder`. It always calls `filterChain.doFilter()` — it never short-circuits. Blocking is the responsibility of `SecurityConfig` and `@PreAuthorize` downstream. Mixing identification and authorization in the filter would violate separation of concerns.
-
----
-
-### 20. 401 vs 403 handled by separate mechanisms
-
-**Decision:** 401 is returned by the `authenticationEntryPoint` in `SecurityConfig`. 403 is returned automatically by Spring when `@PreAuthorize` fails.
-
-**Why:** They represent fundamentally different failures. 401 means "I don't know who you are" — missing, expired, or tampered token. 403 means "I know exactly who you are, but you're not allowed to do this" — valid token, wrong role. Keeping them separate means each failure returns the correct semantic HTTP status.
+**Why:** A regular user calling `GET /borrows/my` doesn't need their own name echoed back — that's noise. An admin calling `GET /borrows` needs to know who borrowed what — `userId`, `userFirstName`, `userLastName`, `userEmail`. Two DTOs, two mappers, clean separation. The endpoints are protected differently so there's no leakage risk.
 
 ---
 
-### 21. No BorrowRequestDTO — bookId comes from URL path, userId from JWT
+### 21. UserResponseDTO — separate DTO for user data
 
-**Decision:** `POST /api/v1/borrows/{bookId}/borrow` takes `bookId` as a path variable. `userId` is extracted from the JWT via `@AuthenticationPrincipal`. No request body, no input DTO needed.
+**Decision:** A dedicated `UserResponseDTO` is returned from admin user endpoints. Never the `User` entity directly.
 
-**Why:** DTOs exist to represent what travels over the wire in the request body. When the only inputs are a path variable and a JWT-derived userId, there is nothing to deserialize. Creating a DTO here would be unnecessary ceremony with no benefit.
-
----
-
-### 22. @PrePersist handles borrowDate, dueDate, and status — not the service
-
-**Decision:** `borrowDate`, `dueDate` (borrowDate + 14 days), and initial `status` (ACTIVE) are set automatically in `Borrow.java` via `@PrePersist`. The service only sets `user` and `book`.
-
-**Why:** These values are always the same at creation time — they are not decisions the service needs to make. Putting them in `@PrePersist` guarantees they are always set correctly regardless of how a `Borrow` is created, and keeps the service focused on business logic rather than entity initialization.
+**Why:** The `User` entity contains a BCrypt password hash. Returning the entity directly would expose it in every admin API response. `UserResponseDTO` includes only: `id`, `firstName`, `lastName`, `email`, `role`, `isActive`, `createdAt`. Password is never sent over the wire.
 
 ---
 
-### 23. Pessimistic locking on borrow operations
+### 22. Pessimistic locking on borrow operations
 
-**Decision:** `BookRepository.findByIdForUpdate()` uses `@Lock(PESSIMISTIC_WRITE)`, issuing `SELECT ... FOR UPDATE` inside the borrow transaction.
+**Decision:** `BookRepository.findByIdForUpdate()` uses `@Lock(LockModeType.PESSIMISTIC_WRITE)`.
 
-**Why:** Prevents two users from borrowing the last copy simultaneously. Without locking, both threads could read `copiesAvailable = 1`, both pass the check, and both decrement — leaving the count at -1. The lock serializes access: the second transaction waits until the first commits. Pessimistic locking is the simplest correct solution for this problem at this scale.
-
----
-
-### 24. Two separate borrow response DTOs — one for users, one for admins
-
-**Decision:** `BorrowResponseDTO` is returned to users from `GET /api/v1/borrows/my`. `AdminBorrowResponseDTO` is returned to admins from `GET /api/v1/borrows`. The admin DTO includes additional fields: `userId`, `userFirstName`, `userLastName`, `userEmail`. `BorrowService` has two corresponding private mapping methods: `mapToDTO()` and `mapToAdminDTO()`.
-
-**Why:** A regular user calling `GET /borrows/my` has no need for their own name and email echoed back — they already know who they are. An admin calling `GET /borrows` needs to know _who_ borrowed _what_, so borrower identity is essential. The endpoints are protected differently at the controller level, so there is no leakage risk. Two DTOs, two mappers, clean separation of concerns.
+**Why:** Two users trying to borrow the last copy simultaneously is a real race condition. Without locking, both threads read `copiesAvailable = 1`, both pass the check, and both create a borrow — leaving `copiesAvailable = -1`. Pessimistic locking issues `SELECT ... FOR UPDATE` at the database level. The second thread blocks until the first transaction commits, then reads the updated value of 0 and fails the check cleanly. Data integrity preserved.
 
 ---
 
-### 25. Controller extracts userId from JWT — service receives a plain Long
+### 23. @PrePersist for automatic borrow field initialization
 
-**Decision:** `BorrowController` resolves the authenticated user via `@AuthenticationPrincipal` and passes `userId` (a `Long`) to the service. The service never touches `SecurityContextHolder` or `UserDetails`.
+**Decision:** `borrowDate`, `dueDate`, and initial `status` are set in `@PrePersist` on `Borrow.java`, not in `BorrowService`.
 
-**Why:** The service layer should be agnostic of HTTP and security concerns. If the service reached into `SecurityContextHolder` directly, it would be tightly coupled to Spring Security — impossible to unit test without a security context, and the service would be doing two jobs. The controller's job is to translate HTTP inputs (including JWT identity) into plain Java values. The service's job is business logic. Each layer does one thing.
-
----
-
-### 26. Ownership check in returnBook uses ID comparison — not a DB lookup
-
-**Decision:** `returnBook()` verifies the borrow belongs to the caller with `borrow.getUser().getId().equals(userId)`. No additional database query.
-
-**Why:** The `borrow` entity is already loaded — it contains the full `User` relationship. Calling `userRepository.findById(userId)` to get a `User` object just to compare IDs would be a wasted round-trip to the database. Compare the IDs directly from what you already have. Also: `Long` is an object — `==` compares references, not values. Always use `.equals()` for object equality in Java.
+**Why:** If the service sets these fields, every code path that creates a `Borrow` must remember to set them. `@PrePersist` is a JPA lifecycle hook — it fires automatically just before the entity is saved. The service can't forget it. Guarantees consistency regardless of how a `Borrow` is created.
 
 ---
 
-### 27. Swagger UI added for interactive API documentation
+### 24. Admin created by direct DB update — not a special endpoint
 
-**Decision:** Added `springdoc-openapi-starter-webmvc-ui` and created `SwaggerConfig.java` with JWT Bearer token support. Swagger URLs whitelisted in `SecurityConfig`.
+**Decision:** To create an admin, register normally then run `UPDATE users SET role = 'ADMIN' WHERE email = '...'` in PostgreSQL.
+
+**Why:** A "register as admin" endpoint would be a massive security vulnerability. There's no legitimate reason for a self-service admin creation flow. For a portfolio project with one administrator, a one-time manual DB update is the correct approach. In production, this would be handled by a seed script or a secured internal tool.
+
+---
+
+### 25. Ownership check in returnBook uses ID comparison — not a DB lookup
+
+**Decision:** `returnBook()` verifies the borrow belongs to the caller with `borrow.getUser().getId().equals(userId)`.
+
+**Why:** The `borrow` entity is already loaded — it contains the full `User` relationship. Calling `userRepository.findById(userId)` just to compare IDs would be a wasted database round-trip. Compare the IDs directly from what you already have. Also: `Long` is an object — `==` compares references, not values. Always use `.equals()` for object equality in Java.
+
+---
+
+### 26. Swagger UI added for interactive API documentation
+
+**Decision:** Added `springdoc-openapi-starter-webmvc-ui` and created `SwaggerConfig.java` with JWT Bearer token support.
 
 **Why:** Without documentation, anyone wanting to use or evaluate the API must read the source code. Swagger generates an interactive UI at `/swagger-ui.html` where endpoints can be browsed and tested directly in the browser using a real JWT token. For a portfolio project, it lets interviewers explore the API without Postman or any setup.
 
@@ -232,136 +231,81 @@
 
 ### What is a JWT?
 
-When a user logs in, the server needs a way to "remember" them on future requests. But this is a stateless REST API — no sessions. So instead, the server hands the client a **signed piece of paper** that says "this is who you are." That piece of paper is a JWT — JSON Web Token.
+When a user logs in, the server needs a way to "remember" them on future requests. But this is a stateless REST API — no sessions. So instead, the server hands the client a **signed piece of paper** that says "this is who you are." That piece of paper is a JWT.
 
 ```
 eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSJ9.abc123xyz
         HEADER                        PAYLOAD                  SIGNATURE
 ```
 
-|Part|Contents|
+| Part | Contents |
 |---|---|
-|**Header**|Algorithm used to sign (e.g. HS256)|
-|**Payload**|Data — email, role, expiry. Base64 encoded, NOT encrypted — anyone can read it|
-|**Signature**|Cryptographic hash of header + payload, signed with the server's secret key|
+| **Header** | Algorithm used to sign (e.g. HS256) |
+| **Payload** | Data — email, role, expiry. Base64 encoded, NOT encrypted |
+| **Signature** | Cryptographic hash of header + payload, signed with the server's secret key |
 
-**The signature is the key insight.** If someone tampers with the payload, the signature breaks. The server detects it instantly. The secret key never touches the codebase — it lives in `application.properties` as `${JWT_SECRET}` and is injected via environment variables.
-
----
-
-### The Full JWT Request Lifecycle
-
-```
-1. POST /api/v1/auth/login  {email, password}
-         ↓
-2. AuthService verifies password with BCrypt
-         ↓
-3. JwtUtils generates a signed token
-         ↓
-4. Server returns: { "token": "eyJhbG..." }
-         ↓
-5. Client stores the token
-         ↓
-6. Every subsequent request sends:
-   Authorization: Bearer eyJhbG...
-         ↓
-7. JwtAuthenticationFilter reads + validates the token,
-   extracts email, loads user, sets SecurityContextHolder
-         ↓
-8. Controller accesses the user via @AuthenticationPrincipal
-         ↓
-9. SecurityConfig / @PreAuthorize allows or denies based on role
-```
+If someone tampers with the payload, the signature breaks. The server detects it instantly.
 
 ---
 
 ### Authentication vs Authorization
 
-|Concept|Question it answers|Where it lives|
+| Concept | Question it answers | Where it lives |
 |---|---|---|
-|**Authentication**|Who are you?|`JwtAuthenticationFilter`|
-|**Authorization**|What are you allowed to do?|`SecurityConfig` + `@PreAuthorize`|
-
-The filter identifies. The config decides. They are separate concerns.
+| **Authentication** | Who are you? | `JwtAuthenticationFilter` |
+| **Authorization** | What are you allowed to do? | `SecurityConfig` + `@PreAuthorize` |
 
 ---
 
 ### Pessimistic Locking — The Race Condition Problem
 
-The borrow operation has a race condition. When two users hit `POST /borrows/42/borrow` at the exact same moment and Book 42 has 1 copy left:
-
 ```
-Thread A reads copiesAvailable → 1  ✅ passes check
-Thread B reads copiesAvailable → 1  ✅ passes check
-
-Thread A creates borrow, writes copiesAvailable = 0
-Thread B creates borrow, writes copiesAvailable = -1  ❌
+Thread A reads copiesAvailable = 1  ✅ passes check
+Thread B reads copiesAvailable = 1  ✅ passes check (without locking)
+Thread A writes copiesAvailable = 0
+Thread B writes copiesAvailable = -1  ❌ data corruption
 ```
 
-**Pessimistic locking is the database equivalent of a mutex.** `SELECT ... FOR UPDATE` places an exclusive lock on the row. Any other transaction that tries to read or write that row blocks until the first transaction commits.
-
-```
-Thread A                            Thread B
-   |                                   |
-   | findByIdForUpdate(42)             |
-   | → DB locks row 42 🔒              |
-   | copiesAvailable = 1               |   findByIdForUpdate(42)
-   | ✅ passes check                   |    ⏳ BLOCKED — waiting for lock
-   | creates borrow record             |    ⏳ ...still waiting...
-   | copiesAvailable → 0               |    ⏳ ...still waiting...
-   | @Transactional commits 🔓         |
-   |                                   | → gets the lock 🔒
-   |                                   | reads copiesAvailable = 0
-   |                                   | ❌ fails check → throws BusinessException
-   |                                   | rolls back 🔓
-```
-
-Thread B now reads the updated value of 0. Data integrity preserved.
-
----
-
-### @PrePersist — Automatic Field Initialization
-
-`@PrePersist` is a JPA lifecycle hook. It runs automatically just before a new entity is saved to the database for the first time. In `Borrow.java` it sets `borrowDate` (today), `dueDate` (today + 14 days), and `status` (ACTIVE) — the service never needs to think about these.
+With `SELECT ... FOR UPDATE`:
+- Thread A locks the row
+- Thread B blocks until Thread A commits
+- Thread B reads the updated value of 0 and fails the check cleanly ✅
 
 ---
 
 ### Why DTOs — Not Entities Directly
 
-Entities are the internal database representation. DTOs are what travel over the wire. Returning entities directly exposes your entire database schema — including hashed passwords and internal audit fields. DTOs give you full control over the API contract.
-
----
-
-### @AuthenticationPrincipal — How Controllers Access the Current User
-
-After `JwtAuthenticationFilter` validates the token and stores the user in `SecurityContextHolder`, any controller method can inject the authenticated user directly using `@AuthenticationPrincipal UserDetails userDetails`. Spring resolves this automatically. `userDetails.getUsername()` returns the email. From the email, the controller calls `userRepository.findByEmail()` to get the `userId` and passes it to the service.
+Entities are the internal database representation. DTOs are what travel over the wire. Returning entities directly exposes your entire database schema — including hashed passwords. DTOs give you full control over the API contract.
 
 ---
 
 ## 🔒 MVP Feature Checklist
 
-|Feature|Status|
+| Feature | Status |
 |---|---|
-|Register / Login (JWT)|✅ Done|
-|Role-based access: USER and ADMIN|✅ Done|
-|Book CRUD (Admin only)|✅ Done|
-|Genre field on Book|✅ Done|
-|Public book browsing|✅ Done|
-|Borrow a book / Return a book|✅ Done|
-|Borrow status tracking (ACTIVE / RETURNED)|✅ Done|
-|Business rules: max 3 borrows, no duplicates, no copies|✅ Done|
-|Pessimistic locking on borrow|✅ Done|
-|Global exception handling + validation|✅ Done|
-|Two borrow DTOs (user-facing + admin-facing)|✅ Done|
-|Admin user management (list, suspend, delete)|🔄 In progress|
-|All endpoints Postman tested|✅ Done|
-|Swagger API documentation|✅ Done|
-|Docker Compose for deployment|📅 Day 18|
-|Deployed to free hosting platform (live URL)|📅 Day 19|
-|Basic CI/CD pipeline (GitHub Actions)|📅 Day 18|
-|React + Vite frontend|🔄 In progress (Day 13–17)|
-|README|✅ In progress|
+| Register / Login (JWT) | ✅ Done |
+| firstName in auth response | ✅ Done |
+| Role-based access: USER and ADMIN | ✅ Done |
+| Book CRUD (Admin only) | ✅ Done |
+| Genre field on Book (nullable String) | ✅ Done |
+| coverImageUrl on Book (nullable String) | ✅ Done |
+| Public book browsing | ✅ Done |
+| Borrow a book / Return a book | ✅ Done |
+| Borrow status tracking (ACTIVE / RETURNED) | ✅ Done |
+| Business rules: max 3 borrows, no duplicates, no copies | ✅ Done |
+| Pessimistic locking on borrow | ✅ Done |
+| Global exception handling + validation | ✅ Done |
+| Two borrow DTOs (user-facing + admin-facing) | ✅ Done |
+| UserResponseDTO (no password leak) | ✅ Done |
+| Admin user management (list, suspend/unsuspend, delete) | ✅ Done |
+| All endpoints Postman tested | ✅ Done |
+| Swagger API documentation | ✅ Done |
+| Docker Compose for deployment | 📅 Day 18 |
+| Deployed to free hosting platform | 📅 Day 19 |
+| Basic CI/CD pipeline (GitHub Actions) | 📅 Day 18 |
+| React + Vite frontend (Rivendell Reads) | 🔄 In progress |
+| README | 📅 Day 20 |
 
 ---
 
-_Last updated: Day 14 ✅ — Genre added. Admin user management in progress._
+_Last updated: Day 15 ✅ — Backend 100% complete. Frontend in progress._
