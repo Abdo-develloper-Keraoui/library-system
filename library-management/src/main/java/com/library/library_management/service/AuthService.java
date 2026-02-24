@@ -79,7 +79,7 @@ public class AuthService {
         userRepository.save(user);
 
         // Step 6: Return response (token is null for now — JWT comes on a later day)
-        return new AuthResponseDTO(null, user.getEmail(), user.getRole().name());
+        return new AuthResponseDTO(null, user.getEmail(), user.getRole().name(),  user.getFirstName());
     }
 
 
@@ -94,7 +94,7 @@ public class AuthService {
         }
 
         //create a jwt then return it
-        return new AuthResponseDTO(jwtUtils.generateToken(user.getEmail()), user.getEmail(), user.getRole().name());
+        return new AuthResponseDTO(jwtUtils.generateToken(user.getEmail()), user.getEmail(), user.getRole().name(), user.getFirstName());
 
     }
 
