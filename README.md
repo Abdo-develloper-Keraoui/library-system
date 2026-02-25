@@ -7,7 +7,26 @@
 ![React](https://img.shields.io/badge/React-Vite-61DAFB)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
-![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
+![CI](https://github.com/Abdo-develloper-Keraoui/library-system/actions/workflows/ci.yml/badge.svg)
+![Status](https://img.shields.io/badge/Status-Live-brightgreen)
+
+---
+
+## 🌐 Live Demo
+
+| | URL |
+|---|---|
+| **Frontend** | [https://rivendell-reads.netlify.app](https://rivendell-reads.netlify.app) |
+| **Backend API** | [https://library-backend-t2y8.onrender.com/api/v1/books](https://library-backend-t2y8.onrender.com/api/v1/books) |
+| **Swagger UI** | [https://library-backend-t2y8.onrender.com/swagger-ui.html](https://library-backend-t2y8.onrender.com/swagger-ui.html) |
+
+**Demo accounts:**
+| Role | Email | Password |
+|---|---|---|
+| Admin | `Ahmed@google.com` | `admin123` |
+| User | `Ahmed@User.com` | `user123` |
+
+> ⚠️ The backend runs on Render's free tier and may take 30–60 seconds to wake up on the first request.
 
 ---
 
@@ -31,6 +50,7 @@ A full-stack library management system where users can browse books, borrow and 
 | Styling | Plain CSS with a custom design system |
 | Containerization | Docker Compose |
 | CI/CD | GitHub Actions |
+| Deployment | Render (backend + DB) + Netlify (frontend) |
 
 ---
 
@@ -94,8 +114,8 @@ docker compose up --build
 App is available at **`http://localhost:5173`**
 
 The database is seeded automatically on first startup with:
-- Admin: `Ahmed@google.com` / `Password123`
-- User: `Ahmed@User.com` / `Password123`
+- Admin: `Ahmed@google.com` / `admin123`
+- User: `Ahmed@User.com` / `user123`
 - 33 books with cover images
 
 To wipe data and reseed from scratch:
@@ -129,7 +149,7 @@ export JWT_SECRET=your-secret-key-at-least-32-characters-long  # Mac/Linux
 # $env:JWT_SECRET="your-secret-key..."                          # Windows PowerShell
 ./mvnw spring-boot:run
 ```
-API available at `http://localhost:8081`  
+API available at `http://localhost:8081`
 Swagger UI at `http://localhost:8081/swagger-ui.html`
 
 ### 3. Run the frontend
@@ -179,7 +199,7 @@ Request → JwtAuthFilter → Controller → Service → Repository → PostgreS
 | PUT | `/api/v1/admin/users/{id}/suspend` | Admin only |
 | DELETE | `/api/v1/admin/users/{id}` | Admin only |
 
-Full interactive documentation available at `/swagger-ui.html`.
+Full interactive documentation available at [Swagger UI](https://library-backend-t2y8.onrender.com/swagger-ui.html).
 
 ---
 
@@ -244,6 +264,7 @@ All errors return a consistent JSON format — no raw stacktraces ever reach the
 
 ```
 library-system/
+├── .github/workflows/ci.yml      ← GitHub Actions CI pipeline
 ├── docker-compose.yml
 ├── .env                          ← never commit this
 ├── .env.example                  ← safe to commit
@@ -262,6 +283,7 @@ library-system/
 └── library-frontend/             ← React + Vite frontend
     ├── Dockerfile
     ├── nginx.conf
+    ├── netlify.toml
     └── src/
         ├── api/                  ← axiosInstance, authApi, bookApi, borrowApi, adminApi
         ├── context/              ← AuthContext
