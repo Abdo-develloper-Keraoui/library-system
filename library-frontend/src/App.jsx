@@ -1,6 +1,8 @@
+// File: ./src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import GuestRoute from './components/GuestRoute'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
@@ -18,33 +20,38 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/books" element={<BooksPage />} />
-          <Route path="/books/:id" element={<BookDetailPage />} />
-          <Route path="/my-borrows" element={
-            <ProtectedRoute><MyBorrowsPage /></ProtectedRoute>
-          } />
-          <Route path="/admin/books" element={
-            <AdminRoute><AdminBooksPage /></AdminRoute>
-          } />
-          <Route path="/admin/books/new" element={
-            <AdminRoute><BookFormPage /></AdminRoute>
-          } />
-          <Route path="/admin/books/edit/:id" element={
-            <AdminRoute><BookFormPage /></AdminRoute>
-          } />
-          <Route path="/admin/users" element={
-            <AdminRoute><AdminUsersPage /></AdminRoute>
-          } />
-          <Route path="/login" element={
-            <GuestRoute><LoginPage /></GuestRoute>
-          } />
-          <Route path="/register" element={
-            <GuestRoute><RegisterPage /></GuestRoute>
-          } />
-        </Routes>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Navbar />
+          <main style={{ flex: 1 }}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/books" element={<BooksPage />} />
+              <Route path="/books/:id" element={<BookDetailPage />} />
+              <Route path="/my-borrows" element={
+                <ProtectedRoute><MyBorrowsPage /></ProtectedRoute>
+              } />
+              <Route path="/admin/books" element={
+                <AdminRoute><AdminBooksPage /></AdminRoute>
+              } />
+              <Route path="/admin/books/new" element={
+                <AdminRoute><BookFormPage /></AdminRoute>
+              } />
+              <Route path="/admin/books/edit/:id" element={
+                <AdminRoute><BookFormPage /></AdminRoute>
+              } />
+              <Route path="/admin/users" element={
+                <AdminRoute><AdminUsersPage /></AdminRoute>
+              } />
+              <Route path="/login" element={
+                <GuestRoute><LoginPage /></GuestRoute>
+              } />
+              <Route path="/register" element={
+                <GuestRoute><RegisterPage /></GuestRoute>
+              } />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
       </AuthProvider>
     </BrowserRouter>
   )
