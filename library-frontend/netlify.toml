@@ -1,7 +1,7 @@
 [build]
   base = "library-frontend"
   command = "npm run build"
-  publish = "library-frontend/dist"
+  publish = "dist"
 
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL"
