@@ -40,7 +40,10 @@ jobs:
         working-directory: library-management
         env:
           JWT_SECRET: test-secret-key-for-ci-at-least-32-chars
-        run: ./mvnw package -DskipTests
+        run: |
+          chmod +x mvnw
+          ./mvnw package -DskipTests
+
 
   build-frontend:
     name: Build Frontend
