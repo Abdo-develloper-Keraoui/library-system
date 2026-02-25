@@ -1,32 +1,34 @@
-> Use case diagram — actors, use cases, and relationships. Use this when preparing to explain your system in interviews. Updated through Day 17 — all backend and frontend use cases implemented.
+# Use Case Diagram
+
+Actors, use cases, and relationships for the Library Management System.
 
 ---
 
-## The Actors
+## Actors
 
-|Actor|Who they are|In your code|
+| Actor | Description | In Code |
 |---|---|---|
-|**Guest**|Unauthenticated visitor|No token → `permitAll()` in SecurityConfig|
-|**User**|Logged-in member|JWT with `role = USER`|
-|**Admin**|Library administrator|JWT with `role = ADMIN`|
+| **Guest** | Unauthenticated visitor | No token → `permitAll()` in `SecurityConfig` |
+| **User** | Logged-in member | JWT with `role = USER` |
+| **Admin** | Library administrator | JWT with `role = ADMIN` |
 
-Actors inherit — Admin can do everything User can, User can do everything Guest can:
+Actors inherit — Admin can do everything User can; User can do everything Guest can:
 
 ```
         ┌─────────┐
-        │  Guest  │    ← browse, register, login
+        │  Guest  │    browse, register, login
         └────┬────┘
              ↑
         ┌────┴────┐
-        │  User   │    ← everything Guest can + borrow/return/history
+        │  User   │    everything Guest can + borrow/return/history
         └────┬────┘
              ↑
         ┌────┴────┐
-        │  Admin  │    ← everything User can + manage books + manage users + view all borrows
+        │  Admin  │    everything User can + manage books + manage users + view all borrows
         └─────────┘
 ```
 
-In Spring Security: `hasRole("USER")` passes for both USER and ADMIN. `hasRole("ADMIN")` only passes for ADMIN.
+In Spring Security: `hasRole("USER")` passes for both USER and ADMIN. `hasRole("ADMIN")` passes for ADMIN only.
 
 ---
 
@@ -61,7 +63,7 @@ In Spring Security: `hasRole("USER")` passes for both USER and ADMIN. `hasRole("
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-Internal (dotted) cases are never triggered directly by an actor — they exist to support other cases via `«include»`.
+Internal cases (dotted) are never triggered directly by an actor — they exist to support other cases via `«include»`.
 
 ---
 
@@ -81,38 +83,32 @@ If the included case fails, the parent case fails.
 [Borrow a book] ──«include»──► [Check account not suspended]    user.isActive() must be true
 ```
 
-Note on ordering: in the actual code, `[Check account not suspended]` is the last guard checked before creating the borrow record — it comes after the book lock and the three business rule checks. A suspended user who also triggers a different rule will see that rule's error first.
+Note: `[Check account not suspended]` is the last guard checked before creating the borrow record — it comes after the book lock and the three business rule checks. A suspended user who also triggers a different rule will see that rule's error first.
 
 **Return a book:**
-
 ```
 [Return a book] ──«include»──► [Authenticate]
-[Return a book] ──«include»──► [Verify ownership]    this borrow belongs to YOU
+[Return a book] ──«include»──► [Verify ownership]    this borrow belongs to the caller
 ```
 
 **Login:**
-
 ```
 [Login] ──«include»──► [Verify credentials]          BCrypt hash check
 ```
 
 **Delete book:**
-
 ```
 [Delete book] ──«include»──► [Cascade delete borrows]    deleteByBookId() before deleteById()
 ```
 
 **Delete user:**
-
 ```
 [Delete user] ──«include»──► [Cascade delete borrows]    deleteByUserId() before deleteById()
 ```
 
 ---
 
-### `«extend»` — optional, only executes under a condition
-
-**Pessimistic locking** — only activates when two requests arrive simultaneously:
+### `«extend»` — optional, only activates under a condition
 
 ```
 [Lock book row] ──«extend»──► [Borrow a book]
@@ -121,7 +117,7 @@ Condition: {concurrent borrow attempt detected}
 
 ---
 
-## The Full Diagram
+## Full Diagram
 
 ```
                  ┌─────────────────────────────────────────────────────────────┐
@@ -158,41 +154,23 @@ Condition: {concurrent borrow attempt detected}
 
 ## UML → Code Mapping
 
-|UML Concept|In your code|
+| UML Concept | In Code |
 |---|---|
-|Actor: Guest|No token → `permitAll()` in `SecurityConfig`|
-|Actor: User|JWT with `role = USER`|
-|Actor: Admin|JWT with `role = ADMIN`|
-|Actor inheritance|`hasRole("ADMIN")` also passes USER-level checks|
-|`«include»` Authenticate|`JwtAuthenticationFilter` — runs on every protected request|
-|`«include»` Verify credentials|`passwordEncoder.matches(raw, hash)` in `AuthService.login()`|
-|`«include»` Check availability|`if (book.getCopiesAvailable() <= 0) throw BusinessException` in `BorrowService`|
-|`«include»` Check borrow limit|`if (borrowRepository.countByUserIdAndStatus(...) >= 3) throw BusinessException`|
-|`«include»` Check no duplicate|`existsByUserIdAndBookIdAndStatus()` in `BorrowRepository`|
-|`«include»` Check not suspended|`if (!user.isActive()) throw BusinessException("Your account has been suspended...")` in `BorrowService`|
-|`«include»` Verify ownership|`if (!borrow.getUser().getId().equals(userId)) throw BusinessException` — uses `.equals()` not `==` because Long is an object|
-|`«include»` Cascade delete borrows|`borrowRepository.deleteByBookId(id)` / `deleteByUserId(id)` — `@Modifying @Transactional` in `BorrowRepository`|
-|`«extend»` Lock row|`@Lock(LockModeType.PESSIMISTIC_WRITE)` on `findByIdForUpdate()` in `BookRepository`|
-|Postcondition: borrow|`copiesAvailable - 1`, `status = ACTIVE`, `@Transactional`|
-|Postcondition: return|`copiesAvailable + 1`, `status = RETURNED`, `returnDate = LocalDate.now()`, `@Transactional`|
-|Admin borrow view|`AdminBorrowResponseDTO` — includes `userId`, `userFirstName`, `userLastName`, `userEmail`|
-|Admin suspend/unsuspend|`adminUserService.suspendUser(userId)` — flips `user.setActive(!user.isActive())`|
-|Admin delete user|`adminUserService.deleteUser(id)` — cascade borrows then hard delete|
-
----
-
-## Interview — How to Explain This
-
-**"Can you walk me through your system's use cases?"**
-
-> "There are three actors — Guest, User, and Admin, in an inheritance hierarchy. Guests can browse books and register. Users inherit that and can borrow and return books. Admins inherit from User and can manage the book catalogue, view all borrow records, and manage users — suspending, unsuspending, or deleting them.
->
-> For borrowing, I modelled five mandatory «include» relationships — the operation always checks authentication, availability, the three-borrow limit, whether the user already has this book active, and whether the account is suspended. Concurrent borrow attempts are handled with pessimistic locking, which I modelled as an «extend» since it only activates under a race condition.
->
-> Delete book and delete user both «include» a cascade-delete step — before deleting either entity, the system first deletes all borrow records that reference it. This is a hard requirement because of the foreign key constraints on the borrows table. Without it you'd get a database constraint violation.
->
-> The admin borrow view returns a different DTO from the user borrow view — it includes borrower details like name and email, since admins need to see who borrowed what."
-
----
-
-_Last updated: Day 17 ✅_
+| Actor: Guest | No token → `permitAll()` in `SecurityConfig` |
+| Actor: User | JWT with `role = USER` |
+| Actor: Admin | JWT with `role = ADMIN` |
+| Actor inheritance | `hasRole("ADMIN")` also passes USER-level checks |
+| `«include»` Authenticate | `JwtAuthenticationFilter` — runs on every protected request |
+| `«include»` Verify credentials | `passwordEncoder.matches(raw, hash)` in `AuthService.login()` |
+| `«include»` Check availability | `if (book.getCopiesAvailable() <= 0) throw BusinessException` in `BorrowService` |
+| `«include»` Check borrow limit | `if (borrowRepository.countByUserIdAndStatus(...) >= 3) throw BusinessException` |
+| `«include»` Check no duplicate | `existsByUserIdAndBookIdAndStatus()` in `BorrowRepository` |
+| `«include»` Check not suspended | `if (!user.isActive()) throw BusinessException(...)` in `BorrowService` |
+| `«include»` Verify ownership | `if (!borrow.getUser().getId().equals(userId)) throw BusinessException` — `.equals()` not `==` because Long is an object |
+| `«include»` Cascade delete borrows | `borrowRepository.deleteByBookId(id)` / `deleteByUserId(id)` — `@Modifying @Transactional` |
+| `«extend»` Lock row | `@Lock(LockModeType.PESSIMISTIC_WRITE)` on `findByIdForUpdate()` in `BookRepository` |
+| Postcondition: borrow | `copiesAvailable - 1`, `status = ACTIVE`, `@Transactional` |
+| Postcondition: return | `copiesAvailable + 1`, `status = RETURNED`, `returnDate = LocalDate.now()`, `@Transactional` |
+| Admin borrow view | `AdminBorrowResponseDTO` — includes `userId`, `userFirstName`, `userLastName`, `userEmail` |
+| Admin suspend/unsuspend | `adminUserService.suspendUser(userId)` — flips `user.setActive(!user.isActive())` |
+| Admin delete user | `adminUserService.deleteUser(id)` — cascade borrows then hard delete |

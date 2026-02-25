@@ -1,0 +1,235 @@
+.
+├── .env
+├── .env.example
+├── .gitignore
+├── .idea
+│   ├── .gitignore
+│   ├── compiler.xml
+│   ├── copilot.data.migration.ask2agent.xml
+│   ├── dataSources
+│   ├── dataSources.local.xml
+│   ├── dataSources.xml
+│   ├── encodings.xml
+│   ├── inspectionProfiles
+│   │   └── Project_Default.xml
+│   ├── jarRepositories.xml
+│   ├── library-system.iml
+│   ├── misc.xml
+│   ├── modules.xml
+│   ├── vcs.xml
+│   └── workspace.xml
+├── README.md
+├── docker-compose.yml
+├── docs
+│   ├── backend-guide.md
+│   ├── decisions-frontend.md
+│   ├── decisions.md
+│   ├── frontend-guide.md
+│   ├── spec.md
+│   └── uml.md
+├── library-frontend
+│   ├── .env.development
+│   ├── .env.production
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── MyFrontend.txt
+│   ├── README.md
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── nginx.conf
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   ├── src
+│   │   ├── App.jsx
+│   │   ├── api
+│   │   │   ├── adminApi.js
+│   │   │   ├── authApi.js
+│   │   │   ├── axiosInstance.js
+│   │   │   ├── bookApi.js
+│   │   │   └── borrowApi.js
+│   │   ├── components
+│   │   │   ├── AdminRoute.jsx
+│   │   │   ├── BookCard.jsx
+│   │   │   ├── GuestRoute.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── context
+│   │   │   └── AuthContext.jsx
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── BookDetailPage.jsx
+│   │   │   ├── BooksPage.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── MyBorrowsPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   └── admin
+│   │   │       ├── AdminBooksPage.jsx
+│   │   │       ├── AdminUsersPage.jsx
+│   │   │       └── BookFormPage.jsx
+│   │   └── styles
+│   │       └── global.css
+│   └── vite.config.js
+├── library-management
+│   ├── .gitattributes
+│   ├── .gitignore
+│   ├── .idea
+│   │   ├── .gitignore
+│   │   ├── .name
+│   │   ├── compiler.xml
+│   │   ├── copilot.data.migration.agent.xml
+│   │   ├── copilot.data.migration.ask.xml
+│   │   ├── copilot.data.migration.ask2agent.xml
+│   │   ├── copilot.data.migration.edit.xml
+│   │   ├── dataSources
+│   │   │   ├── f3424e93-a7db-4d64-86b7-5bd5d0068fdf
+│   │   │   │   └── storage_v2
+│   │   │   │       └── _src_
+│   │   │   │           └── database
+│   │   │   │               ├── library_db.gs7L3Q
+│   │   │   │               │   └── schema
+│   │   │   │               │       ├── information_schema.FNRwLQ.meta
+│   │   │   │               │       ├── pg_catalog.0S1ZNQ.meta
+│   │   │   │               │       └── public.abK9xQ.meta
+│   │   │   │               └── library_db.gs7L3Q.meta
+│   │   │   └── f3424e93-a7db-4d64-86b7-5bd5d0068fdf.xml
+│   │   ├── dataSources.local.xml
+│   │   ├── dataSources.xml
+│   │   ├── encodings.xml
+│   │   ├── jarRepositories.xml
+│   │   ├── misc.xml
+│   │   ├── sqldialects.xml
+│   │   ├── vcs.xml
+│   │   └── workspace.xml
+│   ├── .mvn
+│   │   └── wrapper
+│   │       └── maven-wrapper.properties
+│   ├── Dockerfile
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── pom.xml
+│   ├── src
+│   │   ├── main
+│   │   │   ├── java
+│   │   │   │   └── com
+│   │   │   │       └── library
+│   │   │   │           └── library_management
+│   │   │   │               ├── DataSeeder.java
+│   │   │   │               ├── LibraryManagementApplication.java
+│   │   │   │               ├── config
+│   │   │   │               │   ├── CorsConfig.java
+│   │   │   │               │   ├── SecurityConfig.java
+│   │   │   │               │   └── SwaggerConfig.java
+│   │   │   │               ├── controller
+│   │   │   │               │   ├── AdminUserController.java
+│   │   │   │               │   ├── AuthController.java
+│   │   │   │               │   ├── BookController.java
+│   │   │   │               │   └── BorrowController.java
+│   │   │   │               ├── dto
+│   │   │   │               │   ├── ErrorResponse.java
+│   │   │   │               │   ├── auth
+│   │   │   │               │   │   ├── AuthResponseDTO.java
+│   │   │   │               │   │   ├── LoginDTO.java
+│   │   │   │               │   │   └── RegisterDTO.java
+│   │   │   │               │   ├── book
+│   │   │   │               │   │   ├── BookCreateDTO.java
+│   │   │   │               │   │   ├── BookResponseDTO.java
+│   │   │   │               │   │   └── BookUpdateDTO.java
+│   │   │   │               │   ├── borrow
+│   │   │   │               │   │   ├── AdminBorrowResponseDTO.java
+│   │   │   │               │   │   └── BorrowResponseDTO.java
+│   │   │   │               │   └── user
+│   │   │   │               │       └── UserResponseDTO.java
+│   │   │   │               ├── exception
+│   │   │   │               │   ├── BusinessException.java
+│   │   │   │               │   ├── GlobalExceptionHandler.java
+│   │   │   │               │   └── ResourceNotFoundException.java
+│   │   │   │               ├── model
+│   │   │   │               │   ├── Book.java
+│   │   │   │               │   ├── Borrow.java
+│   │   │   │               │   ├── BorrowStatus.java
+│   │   │   │               │   ├── Role.java
+│   │   │   │               │   └── User.java
+│   │   │   │               ├── repository
+│   │   │   │               │   ├── BookRepository.java
+│   │   │   │               │   ├── BorrowRepository.java
+│   │   │   │               │   └── UserRepository.java
+│   │   │   │               ├── security
+│   │   │   │               │   ├── CustomUserDetailsService.java
+│   │   │   │               │   ├── JwtAuthenticationFilter.java
+│   │   │   │               │   └── JwtUtils.java
+│   │   │   │               └── service
+│   │   │   │                   ├── AdminUserService.java
+│   │   │   │                   ├── AuthService.java
+│   │   │   │                   ├── BookService.java
+│   │   │   │                   └── BorrowService.java
+│   │   │   └── resources
+│   │   │       ├── application.properties
+│   │   │       ├── static
+│   │   │       └── templates
+│   │   └── test
+│   │       └── java
+│   │           └── com
+│   │               └── library
+│   │                   └── library_management
+│   │                       └── LibraryManagementApplicationTests.java
+│   └── target
+│       ├── classes
+│       │   ├── application.properties
+│       │   └── com
+│       │       └── library
+│       │           └── library_management
+│       │               ├── LibraryManagementApplication.class
+│       │               ├── config
+│       │               │   ├── CorsConfig.class
+│       │               │   ├── SecurityConfig.class
+│       │               │   └── SwaggerConfig.class
+│       │               ├── controller
+│       │               │   ├── AdminUserController.class
+│       │               │   ├── AuthController.class
+│       │               │   ├── BookController.class
+│       │               │   └── BorrowController.class
+│       │               ├── dto
+│       │               │   ├── ErrorResponse.class
+│       │               │   ├── auth
+│       │               │   │   ├── AuthResponseDTO.class
+│       │               │   │   ├── LoginDTO.class
+│       │               │   │   └── RegisterDTO.class
+│       │               │   ├── book
+│       │               │   │   ├── BookCreateDTO.class
+│       │               │   │   ├── BookResponseDTO.class
+│       │               │   │   └── BookUpdateDTO.class
+│       │               │   ├── borrow
+│       │               │   │   ├── AdminBorrowResponseDTO.class
+│       │               │   │   └── BorrowResponseDTO.class
+│       │               │   └── user
+│       │               │       └── UserResponseDTO.class
+│       │               ├── exception
+│       │               │   ├── BusinessException.class
+│       │               │   ├── GlobalExceptionHandler.class
+│       │               │   └── ResourceNotFoundException.class
+│       │               ├── model
+│       │               │   ├── Book.class
+│       │               │   ├── Borrow.class
+│       │               │   ├── BorrowStatus.class
+│       │               │   ├── Role.class
+│       │               │   └── User.class
+│       │               ├── repository
+│       │               │   ├── BookRepository.class
+│       │               │   ├── BorrowRepository.class
+│       │               │   └── UserRepository.class
+│       │               ├── security
+│       │               │   ├── CustomUserDetailsService.class
+│       │               │   ├── JwtAuthenticationFilter.class
+│       │               │   └── JwtUtils.class
+│       │               └── service
+│       │                   ├── AdminUserService.class
+│       │                   ├── AuthService.class
+│       │                   ├── BookService.class
+│       │                   └── BorrowService.class
+│       └── generated-sources
+│           └── annotations
+└── structure.txt
+
+70 directories, 163 files

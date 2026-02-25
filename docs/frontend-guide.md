@@ -1,4 +1,6 @@
-> Frontend started Day 13. Complete as of Day 17. All pages and routes implemented.
+# Frontend Guide
+
+How the frontend is structured, how the design system works, and how data flows between the UI and the backend.
 
 ---
 
@@ -8,39 +10,39 @@
 library-frontend/src/
 │
 ├── api/                            ← ALL HTTP calls live here — nowhere else
-│   ├── axiosInstance.js            ✅ base URL (localhost:8081/api/v1) + auto-attach JWT
-│   ├── authApi.js                  ✅ register(), login()
-│   ├── bookApi.js                  ✅ getAllBooks(), getBookById(), createBook(), updateBook(), deleteBook()
-│   ├── borrowApi.js                ✅ borrowBook(), returnBook(), getMyBorrows(), getAllBorrows()
-│   └── adminApi.js                 ✅ getAllUsers(), toggleSuspend(), deleteUser()
+│   ├── axiosInstance.js            base URL + auto-attach JWT interceptor
+│   ├── authApi.js                  register(), login()
+│   ├── bookApi.js                  getAllBooks(), getBookById(), createBook(), updateBook(), deleteBook()
+│   ├── borrowApi.js                borrowBook(), returnBook(), getMyBorrows(), getAllBorrows()
+│   └── adminApi.js                 getAllUsers(), toggleSuspend(), deleteUser()
 │
 ├── context/
-│   └── AuthContext.jsx             ✅ stores token, email, role, firstName
+│   └── AuthContext.jsx             stores token, email, role, firstName
 │
 ├── components/
-│   ├── Navbar.jsx                  ✅ Rivendell themed, role-based links, ꧁ name ꧂ pill
-│   ├── BookCard.jsx                ✅ clickable card — cover image, title, author, genre badge, availability badge
-│   ├── GuestRoute.jsx              ✅ redirects logged-in users away from /login and /register
-│   ├── ProtectedRoute.jsx          ✅ redirects unauthenticated users to /login
-│   └── AdminRoute.jsx              ✅ redirects non-admins: no user → /login, wrong role → /
+│   ├── Navbar.jsx                  Rivendell themed, role-based links, ꧁ name ꧂ pill
+│   ├── BookCard.jsx                clickable card — cover image, title, author, genre badge, availability badge
+│   ├── GuestRoute.jsx              redirects logged-in users away from /login and /register
+│   ├── ProtectedRoute.jsx          redirects unauthenticated users to /login
+│   └── AdminRoute.jsx              redirects non-admins: no user → /login, wrong role → /
 │
 ├── pages/
-│   ├── HomePage.jsx                ✅ hero section + animated scrolling book belt
-│   ├── LoginPage.jsx               ✅ uses raw fetch (see note below)
-│   ├── RegisterPage.jsx            ✅ uses authApi.register(), auto-login on success
-│   ├── BooksPage.jsx               ✅ book grid + client-side genre filter
-│   ├── BookDetailPage.jsx          ✅ single book view + borrow button
-│   ├── MyBorrowsPage.jsx           ✅ user borrow history with inline return button
+│   ├── HomePage.jsx                hero section + animated scrolling book belt
+│   ├── LoginPage.jsx               uses raw fetch (see Known Issues)
+│   ├── RegisterPage.jsx            uses authApi.register(), auto-login on success
+│   ├── BooksPage.jsx               book grid + client-side genre filter
+│   ├── BookDetailPage.jsx          single book view + borrow button
+│   ├── MyBorrowsPage.jsx           user borrow history with inline return button
 │   └── admin/
-│       ├── AdminBooksPage.jsx      ✅ book list with edit/delete (uses window.confirm for delete)
-│       ├── AdminUsersPage.jsx      ✅ user list with suspend/unsuspend and styled inline delete confirm
-│       └── BookFormPage.jsx        ✅ shared add/edit form, detects mode via useParams id
+│       ├── AdminBooksPage.jsx      book list with edit/delete (window.confirm for delete)
+│       ├── AdminUsersPage.jsx      user list with suspend/unsuspend and inline delete confirm
+│       └── BookFormPage.jsx        shared add/edit form, detects mode via useParams id
 │
 ├── styles/
-│   └── global.css                  ✅ Rivendell Reads design system (see below)
+│   └── global.css                  Rivendell Reads design system
 │
-├── App.jsx                         ✅ BrowserRouter + AuthProvider + Navbar + all routes
-└── main.jsx                        ✅ entry point, imports global.css
+├── App.jsx                         BrowserRouter + AuthProvider + Navbar + all routes
+└── main.jsx                        entry point, imports global.css
 ```
 
 ---
@@ -48,42 +50,39 @@ library-frontend/src/
 ## Design System — Rivendell Reads
 
 ### Philosophy
-Tolkien-inspired. Warm parchment backgrounds, dark brown navbar, jade green accents, muted gold highlights. Distinctive and memorable for a portfolio project.
+Tolkien-inspired. Warm parchment backgrounds, dark brown navbar, jade green primary actions, muted gold accents. All color decisions live in CSS variables — no hardcoded hex values in component files.
 
-### Fonts (loaded in index.html via Google Fonts)
-```html
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Merriweather:wght@400;700&family=Lato:wght@400;600&display=swap" rel="stylesheet">
-```
-- `Cinzel` → brand name and hero heading only
-- `Merriweather` → page headings (h1 default, h2, h3 in global.css)
-- `Lato` → body text and buttons
+### Fonts (loaded in `index.html` via Google Fonts)
+- `Cinzel` — brand name and hero heading only
+- `Merriweather` — page headings
+- `Lato` — body text and buttons
 
-### CSS Variables (actual values from global.css)
+### CSS Variables
 ```css
 /* Backgrounds */
 --bg-page:      #faf6ef;   /* warm parchment */
---bg-card:      #fffcf5;   /* slightly lighter for cards */
---bg-section:   #f0e9db;   /* darker parchment — section backgrounds, form inputs */
+--bg-card:      #fffcf5;
+--bg-section:   #f0e9db;   /* form inputs, section backgrounds */
 --bg-navbar:    #2c1f14;   /* dark warm brown */
 
 /* Accent Colors */
 --jade:         #3d7a5c;   /* primary buttons, active states */
 --jade-hover:   #2d5e45;
---brown:        #8b6340;   /* warm brown — secondary elements */
+--brown:        #8b6340;
 --gold:         #c49a3c;   /* logo, name pill, genre badges */
 --danger:       #b85c3a;   /* delete/logout/return */
 --danger-hover: #9a4a2c;
 
 /* Text */
---text-heading: #1e1208;   /* very dark warm brown */
---text-body:    #3d2b1a;   /* warm dark brown */
---text-medium:  #6b5032;   /* secondary text */
---text-light:   #9c866e;   /* hints, placeholders */
---text-navbar:  #e8dcc8;   /* warm cream on dark navbar */
+--text-heading: #1e1208;
+--text-body:    #3d2b1a;
+--text-medium:  #6b5032;
+--text-light:   #9c866e;
+--text-navbar:  #e8dcc8;
 
 /* Borders */
 --border:       #ddd0bb;
---border-focus: #3d7a5c;   /* jade on focus */
+--border-focus: #3d7a5c;
 
 /* Shadows */
 --shadow-sm:    0 1px 3px rgba(44,31,20,0.08), 0 2px 8px rgba(44,31,20,0.04);
@@ -103,98 +102,91 @@ Tolkien-inspired. Warm parchment backgrounds, dark brown navbar, jade green acce
 ```
 
 ### Available CSS Classes
-`.btn`, `.btn-primary`, `.btn-danger`, `.btn-secondary` (navbar only), `.btn-secondary-light` (on light backgrounds), `.card`, `.form-group`, `.badge`, `.badge-green`, `.badge-grey`, `.badge-red`, `.badge-gold`, `.error-msg`, `.success-msg`, `.empty-state`, `.page`, `.container`, `.divider`
+`.btn`, `.btn-primary`, `.btn-danger`, `.btn-secondary`, `.btn-secondary-light`, `.card`, `.form-group`, `.badge`, `.badge-green`, `.badge-grey`, `.badge-red`, `.badge-gold`, `.error-msg`, `.success-msg`, `.empty-state`, `.page`, `.container`, `.divider`
 
-**The two secondary button variants:**
-- `.btn-secondary` — transparent with `--text-navbar` color and semi-transparent border. Only for use inside the dark navbar.
-- `.btn-secondary-light` — `--bg-section` fill, `--text-body` color, `--border` border. Use everywhere else: back buttons, cancel buttons, secondary actions on pages.
-
-### Golden Rule
-**Never hardcode hex colors in component files. Always use CSS variables.**
+**Secondary button variants:**
+- `.btn-secondary` — transparent, `--text-navbar` color. Only for use inside the dark navbar
+- `.btn-secondary-light` — `--bg-section` fill, `--text-body` color. Use everywhere else: back buttons, cancel actions, secondary actions on pages
 
 ---
 
-## Route Guards — Three Types
+## Route Guards
 
-**`GuestRoute`** — wraps `/login` and `/register`. If `user` exists in context → `<Navigate to="/" />`. Prevents logged-in users from seeing auth pages.
+**`GuestRoute`** — wraps `/login` and `/register`. If `user` exists → `<Navigate to="/" />`. Prevents logged-in users from seeing auth pages.
 
-**`ProtectedRoute`** — wraps `/my-borrows`. If no `user` → `<Navigate to="/login" />`. Prevents unauthenticated access.
+**`ProtectedRoute`** — wraps `/my-borrows`. If no `user` → `<Navigate to="/login" />`.
 
-**`AdminRoute`** — wraps all `/admin/*` routes. Two checks: if no `user` → `<Navigate to="/login" />`. If `user.role !== 'ADMIN'` → `<Navigate to="/" />`. Prevents non-admins from reaching admin pages even with a valid token.
-
----
-
-## Key Design Decisions
-
-**Why `axiosInstance.js`?** Base URL (`http://localhost:8081/api/v1`) and JWT header set once. Every API call automatically gets the right headers via the request interceptor.
-
-**Why `AuthContext`?** JWT token + user info needs to be accessible everywhere — Navbar, route guards, all pages. Context is the simplest way to share state globally without prop drilling.
-
-**Why three route guards?** `GuestRoute` and `ProtectedRoute` handle authentication state. `AdminRoute` adds role checking — it's a separate component so any route can be wrapped independently.
-
-**Why `BookFormPage` handles both add and edit?** The form is identical. Mode is detected by `const isEditing = Boolean(id)` from `useParams()`. Add route: `/admin/books/new`. Edit route: `/admin/books/edit/:id`. One component, two routes, no duplication.
-
-**LoginPage uses raw `fetch` instead of `axiosInstance`** — `LoginPage` was written before `axiosInstance` was set up and uses the browser's native `fetch` directly. All other pages use `axiosInstance`. This is a minor inconsistency worth noting — `LoginPage` could be refactored to use `authApi.login()` to match the rest of the codebase.
+**`AdminRoute`** — wraps all `/admin/*` routes. If no `user` → `/login`. If `user.role !== 'ADMIN'` → `/`. Handles both unauthenticated and unauthorized scenarios.
 
 ---
 
-## AuthContext — What's Stored
+## AuthContext
 
-`AuthContext` stores `user` as either `null` (not logged in) or an object:
+`AuthContext` stores `user` as either `null` (not logged in) or:
 ```js
 { token, email, role, firstName }
 ```
 
 Three operations:
-- **On mount** (lazy `useState` initializer) — reads all four keys from `localStorage`. If `token` exists, restores `user`; otherwise `null`.
-- **`loginUser(data)`** — writes all four to `localStorage`, sets `user` state.
-- **`logoutUser()`** — removes all four from `localStorage`, sets `user` to `null`.
+- **On mount** — reads all four keys from `localStorage`. If `token` exists, restores `user`; otherwise `null`
+- **`loginUser(data)`** — writes all four to `localStorage`, sets `user` state
+- **`logoutUser()`** — removes all four from `localStorage`, sets `user` to `null`
 
-Note: On `register`, the backend returns `token: null` (no JWT is generated on register). `RegisterPage` calls `loginUser(response.data)` which stores `null` as the token. This means a freshly registered user has `user` set in context but `token` is null in localStorage — the axiosInstance interceptor will attach `null` as the Bearer token on subsequent calls. This is a known inconsistency — a future fix would have the register endpoint return a real JWT, or have `RegisterPage` call `login` immediately after register.
+**Known edge case:** On register, the backend returns `token: null` (a JWT is only generated on login). `RegisterPage` calls `loginUser(response.data)` which stores `null` as the token. The axiosInstance interceptor will attach `null` as the Bearer token on subsequent calls. A future fix would have the backend return a real JWT on registration, or have `RegisterPage` call `authApi.login()` immediately after registering.
 
 ---
 
-## Pages — What Each Does
+## Pages
 
 **`HomePage`** — Landing page at `/`. Two sections:
-1. Hero: brand name in Cinzel gold, Frank Zappa quote, Login/Register buttons (or Browse Books if logged in)
-2. Book belt: animated horizontal scroll of cover images fetched from `getAllBooks()`. The array is doubled (`[...books, ...books]`) to create a seamless loop. CSS `@keyframes scrollBelt` runs 40s linear infinite. Hovering pauses the animation. Only books with `coverImageUrl` render in the belt.
+1. Hero: brand name in Cinzel gold, tagline, Login/Register buttons (or Browse Books if logged in)
+2. Book belt: animated horizontal scroll of cover images. Array is doubled (`[...books, ...books]`) for a seamless loop. `@keyframes scrollBelt` runs 40s linear infinite. Hovering pauses. Only books with `coverImageUrl` render.
 
-**`BooksPage`** — Book grid at `/books`. Fetches all books on mount. Genre filter is fully client-side: `new Set(books.map(b => b.genre).filter(Boolean))` — deduplicates genres, drops nulls. Pill buttons above the grid. Active genre button turns jade green. Renders `BookCard` for each filtered book.
+**`BooksPage`** — Book grid at `/books`. Genre filter is fully client-side: `new Set(books.map(b => b.genre).filter(Boolean))`. Active genre pill turns jade green.
 
-**`BookDetailPage`** — Single book at `/books/:id`. Fetches by ID. Borrow button is disabled if `copiesAvailable === 0`, if user is not logged in, or if `borrowLoading`. On borrow success, decrements `copiesAvailable` locally without refetching.
+**`BookDetailPage`** — Single book at `/books/:id`. Borrow button is disabled if `copiesAvailable === 0`, user is not logged in, user is admin, or `borrowLoading`. On borrow success, decrements `copiesAvailable` locally without refetching.
 
-**`MyBorrowsPage`** — Borrow history at `/my-borrows` (ProtectedRoute). Each card shows title, borrow date, due date, status badge. Active borrows show a Return button. On return, updates the borrow's status in local state to `'RETURNED'` without refetching.
+**`MyBorrowsPage`** — Borrow history at `/my-borrows` (`ProtectedRoute`). Active borrows show a Return button. On return, updates the borrow's status in local state to `'RETURNED'` without refetching.
 
-**`AdminBooksPage`** — Book management at `/admin/books` (AdminRoute). Table/list of all books with Edit and Delete buttons. Delete uses `window.confirm()` — a simple native dialog (unlike AdminUsersPage which has the styled inline confirm).
+**`AdminBooksPage`** — Book management at `/admin/books` (`AdminRoute`). Delete uses `window.confirm()`.
 
-**`AdminUsersPage`** — User management at `/admin/users` (AdminRoute). Each user card shows name, email, role badge (`badge-gold`), and status badge (`badge-green` / `badge-red` based on `user.active`). Suspend/Unsuspend button label changes based on `user.active`. Delete uses a styled inline confirmation bar inside the card — `confirmDeleteId` state tracks which card is open.
+**`AdminUsersPage`** — User management at `/admin/users` (`AdminRoute`). Status badge and Suspend button label are driven by `user.active` (not `user.isActive` — see Known Issues). Delete uses a styled inline confirmation bar.
 
-**`BookFormPage`** — Shared add/edit form at `/admin/books/new` and `/admin/books/edit/:id` (AdminRoute). Fields: title, author, isbn, pubYear, copiesAvailable (both required), genre, coverImageUrl (both optional). Live cover image preview appears when `form.coverImageUrl` is non-empty. `pubYear` and `copiesAvailable` are `parseInt`-ed before sending to the API.
+**`BookFormPage`** — Shared add/edit at `/admin/books/new` and `/admin/books/edit/:id`. Mode detected by `const isEditing = Boolean(id)`. Live cover image preview when `form.coverImageUrl` is non-empty.
 
-**`LoginPage`** — Login form. Uses raw `fetch` (not axiosInstance). On success: `loginUser(data)` → `navigate('/')`.
+**`LoginPage`** — Uses raw `fetch` directly (see Known Issues).
 
-**`RegisterPage`** — Register form. Uses `authApi.register()` (axiosInstance). On success: `loginUser(response.data)` → `navigate('/')`. Auto-login after registration.
+**`RegisterPage`** — Uses `authApi.register()`. Auto-login on success.
 
 ---
 
-## `adminApi.js` — Admin HTTP Calls
+## adminApi.js
 
 ```js
-getAllUsers()           → GET  /admin/users
-toggleSuspend(userId)  → PUT  /admin/users/:userId/suspend
+getAllUsers()           → GET    /admin/users
+toggleSuspend(userId)  → PUT    /admin/users/:userId/suspend
 deleteUser(userId)     → DELETE /admin/users/:userId
 ```
 
-All three go through `axiosInstance` and automatically carry the JWT. All three call the same backend `AdminUserController` endpoints.
+All go through `axiosInstance` and automatically carry the JWT.
 
-Note: `AdminUsersPage` does NOT use `adminApi.js` — it imports and calls `getAllUsers`, `toggleSuspend`, `deleteUser` from `adminApi` via named imports. *(Verify this in AdminUsersPage if any changes are made.)*
+---
+
+## Known Issues / Future Improvements
+
+**`LoginPage` uses raw `fetch`** — `LoginPage` was written before `axiosInstance.js` was set up. All other pages use the centralized API layer. Future fix: refactor `LoginPage` to call `authApi.login()`.
+
+**`user.active` vs `user.isActive`** — Java serializes `boolean isActive` as `active` in JSON (strips the `is` prefix). React must read `user.active`. This is handled correctly in the current codebase but worth noting for anyone extending `AdminUsersPage`.
+
+**`AdminBooksPage` delete uses `window.confirm()`** — `AdminUsersPage` has the styled inline confirmation bar. `AdminBooksPage` still uses `window.confirm()`. Consistent treatment across both pages is a cleanup opportunity.
+
+**Token on register is null** — see AuthContext section above.
 
 ---
 
 ## Request Flows
 
-### Flow 1 — User logs in
+### User logs in
 ```
 LoginPage → fetch POST /api/v1/auth/login {email, password}
          ← 200 {token, email, role, firstName}
@@ -202,41 +194,40 @@ LoginPage → fetch POST /api/v1/auth/login {email, password}
          → navigate('/')
 ```
 
-### Flow 2 — User registers
+### User registers
 ```
 RegisterPage → authApi.register(email, password, firstName, lastName)
-             → POST /api/v1/auth/register {firstName, lastName, email, password}
+             → POST /api/v1/auth/register
              ← 201 {token: null, email, role, firstName}
-             → loginUser(response.data) → AuthContext (token is null)
+             → loginUser(response.data) → AuthContext
              → navigate('/')
 ```
 
-### Flow 3 — Browse books (no login needed)
+### Browse books (no auth)
 ```
 BooksPage → getAllBooks() → GET /api/v1/books
           ← 200 [{id, title, author, genre, copiesAvailable, coverImageUrl...}]
           → genres computed client-side with Set
-          → filteredBooks filtered client-side
-          → render BookCard for each
+          → render BookCard for each filtered book
 ```
 
-### Flow 4 — User borrows a book
+### User borrows a book
 ```
 BookDetailPage → borrowBook(id) → POST /api/v1/borrows/:bookId/borrow
-                 Authorization: Bearer <token>  ← axiosInstance adds this
+                 Authorization: Bearer <token>  ← axiosInstance interceptor
               ← 200 {id, bookTitle, dueDate, status: ACTIVE}
-              → setBorrowSuccess(...), decrement copiesAvailable locally
+              → decrement copiesAvailable locally
 ```
 
-### Flow 5 — Admin suspends a user
+### Admin suspends a user
 ```
 AdminUsersPage → toggleSuspend(userId) → PUT /api/v1/admin/users/:id/suspend
               ← 200 {id, firstName, ..., isActive: false}
               → update local state: user.active = res.data.active
-              → badge switches to Suspended (red)
+              → badge switches to Suspended
 ```
 
-### Flow 6 — Admin deletes a user
+### Admin deletes a user
 ```
 AdminUsersPage → setConfirmDeleteId(user.id)  ← opens inline confirm bar
               → handleDelete(user.id)
@@ -244,23 +235,3 @@ AdminUsersPage → setConfirmDeleteId(user.id)  ← opens inline confirm bar
               ← 204
               → filter user out of local state
 ```
-
----
-
-## AdminUsersPage — `user.active` vs `user.isActive`
-
-Java serializes `boolean isActive` as `active` in JSON (strips the `is` prefix by convention). React must read `user.active`, NOT `user.isActive`.
-
-`user.isActive` → always `undefined` → always falsy → every user looks suspended.
-`user.active` → correct boolean from the API.
-
-This applies everywhere in `AdminUsersPage`: the badge condition, the button label, and the local state update after a suspend toggle:
-```js
-setUsers(prev =>
-  prev.map(u => u.id === userId ? { ...u, active: res.data.active } : u)
-)
-```
-
----
-
-_Last updated: Day 17 ✅ — All pages complete. Next: Docker Compose (Day 18)._
