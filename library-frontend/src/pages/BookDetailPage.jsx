@@ -134,17 +134,19 @@ function BookDetailPage() {
 
             <button
               className="btn btn-primary"
-              disabled={book.copiesAvailable === 0 || !user || borrowLoading}
+              disabled={book.copiesAvailable === 0 || !user || borrowLoading || user?.role === 'ADMIN'}
               onClick={handleBorrow}
               style={{ width: 'fit-content' }}
             >
               {!user
                 ? 'Login to borrow'
-                : borrowLoading
-                ? 'Borrowing...'
-                : book.copiesAvailable === 0
-                ? 'Unavailable'
-                : 'Borrow Book'
+                : user?.role === 'ADMIN'
+                  ? 'Admins cannot borrow'
+                  : borrowLoading
+                    ? 'Borrowing...'
+                    : book.copiesAvailable === 0
+                      ? 'Unavailable'
+                      : 'Borrow Book'
               }
             </button>
 

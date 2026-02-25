@@ -39,7 +39,10 @@ Thumbs.db
 # Environment variables
 *.env
 .env
+.env*.local
+.env.development
 
 # Node modules (for frontend later)
 library-frontend/node_modules/
 library-frontend/dist/
+
