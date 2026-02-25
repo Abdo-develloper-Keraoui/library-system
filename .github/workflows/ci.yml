@@ -40,15 +40,14 @@ jobs:
         working-directory: library-management
         env:
           JWT_SECRET: test-secret-key-for-ci-at-least-32-chars
-        run: |
-          chmod +x mvnw
-          ./mvnw package -DskipTests
 
       - name: Make mvnw executable
+        working-directory: library-management
         run: chmod +x mvnw
 
       - name: Package with Maven
-        run: bash mvnw package -DskipTests
+        working-directory: library-management
+        run: ./mvnw package -DskipTests
 
   build-frontend:
     name: Build Frontend
