@@ -21,10 +21,10 @@
 | **Swagger UI** | [https://library-backend-t2y8.onrender.com/swagger-ui.html](https://library-backend-t2y8.onrender.com/swagger-ui.html) |
 
 **Demo accounts:**
-| Role | Email | Password |
-|---|---|---|
-| Admin | `Ahmed@google.com` | `Password123` |
-| User | `Ahmed@User.com` | `Password123` |
+| Role | Email |
+|---|---|
+| Admin | `Ahmed@google.com` |
+| User | `Ahmed@User.com` |
 
 > ⚠️ The backend runs on Render's free tier and may take 30–60 seconds to wake up on the first request.
 
