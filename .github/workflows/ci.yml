@@ -44,7 +44,6 @@ jobs:
           chmod +x mvnw
           ./mvnw package -DskipTests
 
-
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
