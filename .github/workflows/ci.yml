@@ -36,17 +36,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build with Maven
-        working-directory: library-management
-        env:
-          JWT_SECRET: test-secret-key-for-ci-at-least-32-chars
-
       - name: Make mvnw executable
         working-directory: library-management
         run: chmod +x mvnw
 
-      - name: Package with Maven
+      - name: Build with Maven
         working-directory: library-management
+        env:
+          JWT_SECRET: test-secret-key-for-ci-at-least-32-chars
         run: ./mvnw package -DskipTests
 
   build-frontend:
