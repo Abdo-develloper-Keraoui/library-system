@@ -23,8 +23,8 @@
 **Demo accounts:**
 | Role | Email | Password |
 |---|---|---|
-| Admin | `Ahmed@google.com` | `admin123` |
-| User | `Ahmed@User.com` | `user123` |
+| Admin | `Ahmed@google.com` | `Password123` |
+| User | `Ahmed@User.com` | `Password123` |
 
 > ⚠️ The backend runs on Render's free tier and may take 30–60 seconds to wake up on the first request.
 
