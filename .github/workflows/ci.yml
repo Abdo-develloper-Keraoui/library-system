@@ -44,6 +44,12 @@ jobs:
           chmod +x mvnw
           ./mvnw package -DskipTests
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Package with Maven
+        run: bash mvnw package -DskipTests
+
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
