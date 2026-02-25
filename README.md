@@ -94,8 +94,8 @@ docker compose up --build
 App is available at **`http://localhost:5173`**
 
 The database is seeded automatically on first startup with:
-- Admin: `Ahmed@google.com` / `admin123`
-- User: `Ahmed@User.com` / `user123`
+- Admin: `Ahmed@google.com` / `Password123`
+- User: `Ahmed@User.com` / `Password123`
 - 33 books with cover images
 
 To wipe data and reseed from scratch:
