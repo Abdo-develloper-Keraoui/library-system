@@ -242,5 +242,5 @@ All three methods carry `@PreAuthorize("hasRole('ADMIN')")` — redundant with `
 `DataSeeder.java` seeds the database on first startup only (`if (repository.count() > 0) return`). It creates two users and 33 books with cover image URLs. To reseed, run `docker compose down -v` to wipe the volume first.
 
 Seeded accounts:
-- Admin: `Ahmed@google.com` / `admin123`
-- User: `Ahmed@User.com` / `user123`
+- Admin: `Ahmed@google.com` / `Password123`
+- User: `Ahmed@User.com` / `Password123`
